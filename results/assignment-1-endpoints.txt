@@ -1,0 +1,92 @@
+```
+$ aws lambda invoke --function-name lsc-knn-zip \
+    --cli-binary-format raw-in-base64-out \
+    --payload "$(python3 -c 'import json; q=json.load(open("loadtest/query.json")); print(json.dumps({"body": json.dumps(q)}))')" \
+    /tmp/out.json
+$ cat /tmp/out.json
+{
+    "statusCode": 200, 
+    "headers": 
+        {
+            "Content-Type": "application/json",
+            "X-Server-Time-Ms": "87.618",
+            "X-Instance-Id": "2026/03/30/[$LATEST]86519704b051484ba074c80227f98d58",
+            "X-Cold-Start": "true"
+        },
+    "body": 
+    "{\"results\": 
+        [
+            {\"index\": 35859, \"distance\": 12.001459121704102},
+            {\"index\": 24682, \"distance\": 12.059946060180664},
+            {\"index\": 35397, \"distance\": 12.487079620361328},
+            {\"index\": 20160, \"distance\": 12.489519119262695},
+            {\"index\": 30454, \"distance\": 12.499402046203613}
+        ],
+        \"query_time_ms\": 87.618,
+        \"instance_id\": \"2026/03/30/[$LATEST]86519704b051484ba074c80227f98d58\",
+        \"cold_start\": true}"
+}
+```
+```
+$ aws lambda invoke --function-name lsc-knn-container \
+    --cli-binary-format raw-in-base64-out \
+    --payload "$(python3 -c 'import json; q=json.load(open("loadtest/query.json")); print(json.dumps({"body": json.dumps(q)}))')" \
+    /tmp/out.json
+$ cat /tmp/out.json
+{
+    "statusCode": 200,
+    "headers":
+        {
+            "Content-Type": "application/json",
+            "X-Server-Time-Ms": "69.257",
+            "X-Instance-Id": "2026/03/30/[$LATEST]a437b5a425ff4268ac7e098540d92f6b",
+            "X-Cold-Start": "true"
+        }, 
+    "body":
+        "{\"results\": 
+            [
+                {\"index\": 35859, \"distance\": 12.001459121704102},
+                {\"index\": 24682, \"distance\": 12.059946060180664},
+                {\"index\": 35397, \"distance\": 12.487079620361328},
+                {\"index\": 20160, \"distance\": 12.489519119262695},
+                {\"index\": 30454, \"distance\": 12.499402046203613}
+            ],
+            \"query_time_ms\": 69.257,
+            \"instance_id\": \"2026/03/30/[$LATEST]a437b5a425ff4268ac7e098540d92f6b\",
+            \"cold_start\": true
+        }"
+}% 
+```
+
+
+```
+$ curl -X POST -H "Content-Type: application/json" -d @loadtest/query.json http://lsc-knn-alb-772807203.us-east-1.elb.amazonaws.com/search
+{
+    "instance_id":"ip-172-31-86-128.ec2.internal",
+    "query_time_ms":26.977,
+    "results":
+        [
+            {"distance":12.001459121704102,"index":35859},
+            {"distance":12.059946060180664,"index":24682},
+            {"distance":12.487079620361328,"index":35397},
+            {"distance":12.489519119262695,"index":20160},
+            {"distance":12.499402046203613,"index":30454}
+        ]
+}
+```
+
+```
+$ curl -X POST -H "Content-Type: application/json" -d @loadtest/query.json http://3.239.73.82:8080/search
+{
+    "instance_id":"321b6a8ca503",
+    "query_time_ms":27.621,
+    "results":
+        [
+            {"distance":12.001459121704102,"index":35859},
+            {"distance":12.059946060180664,"index":24682},
+            {"distance":12.487079620361328,"index":35397},
+            {"distance":12.489519119262695,"index":20160},
+            {"distance":12.499402046203613,"index":30454}
+        ]
+}
+```
